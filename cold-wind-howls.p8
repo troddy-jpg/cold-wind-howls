@@ -1,19 +1,22 @@
 pico-8 cartridge // http://www.pico-8.com
-version 36
+version 42
 __lua__
 --main
-cartdata(game_title)
+
 function _init() 
 	game_title = "cold-wind-blows"
+	cartdata(game_title)
+	col1,col2=7,0
 	score = 0
-    act_update = udpate_menu
-    act_draw = draw_menu
+    act_update = nil
+    act_draw = nil
 	title_y = 32
 	selections = {
 		"play",
 		"highscore",
 	}
 	cur_sel = 1
+	init_menu() -- set act_update and act_draw to menustate
 	--highscore things
 	highscores={	
 	0,0,0,0,0,0,0,0,0,0
@@ -28,6 +31,12 @@ end
 
 -->8
 --main-menu
+init_menu = function ()
+	score=0
+	cur_sel = 1
+	act_update = udpate_menu
+    act_draw = draw_menu
+end
 function udpate_menu()
     if btn(❎) then
         if cur_sel == 1 then
@@ -45,10 +54,10 @@ function draw_menu()
     outline_print(game_title, 64 - #game_title*4 / 2, title_y, 7, 5, 1)
     rectfill(32,title_y+7,98,title_y+7,7)
     rectfill(31,title_y+8,97,title_y+9,5)
-    print("by Trevor", 24, title_y+14, 5)
-    print("by Trevor", 23, title_y+13, 7)
-    rectfill(73, title_y+12, 103, title_y+18, 8)
-    print("1-bit jam #5", 75, title_y+13, 0)
+    print("by trevor", 47, title_y+14, 5)
+    print("by trevor", 48, title_y+13, 7)
+    -- rectfill(73, title_y+12, 103, title_y+18, 8)
+    -- print("1-bit jam #5", 75, title_y+13, 0)
 	for i=1, #selections do
 		local pre = "   "
 		if cur_sel == i then pre="❎ " end
@@ -69,7 +78,7 @@ update_game=function ()
     end
     if btnp(🅾️) then 
         add_highscore(score)
-        _init()
+        init_menu()
     end
 end
 draw_game=function ()
@@ -89,7 +98,7 @@ init_highscore= function ()
     act_draw = draw_highscore
 end
 update_highscore = function ()
-	if btnp(🅾️) then _init() end
+	if btnp(🅾️) then init_menu() end
 end
 draw_highscore = function ()
 	print("highscores:", 0, 0, 7)
