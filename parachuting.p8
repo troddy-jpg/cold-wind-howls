@@ -21,11 +21,8 @@ function _init()
   function _update()
 	if (py>140) py=10
 	if (py<-5) py=10
-	if btn(4) then
-	  chute_deployed = true
-	else
-	  chute_deployed = false
-	end
+	chute_deployed = false
+	if (btn(4)) chute_deployed=true
 	if not chute_deployed then
 	  yvel += gravity
 	  if (yvel > terminal_velocity) yvel = terminal_velocity

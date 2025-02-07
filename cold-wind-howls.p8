@@ -4,7 +4,7 @@ __lua__
 --main
 
 function _init() 
-	game_title = "cold-wind-blows"
+	game_title = "cold-wind-howls"
 	cartdata(game_title)
 	col1,col2=7,0
 	score = 0
@@ -22,12 +22,29 @@ function _init()
 	0,0,0,0,0,0,0,0,0,0
 	}
 	last_highscore = -1
+	--init snow
+	snow = {}
+	for i=1,50 do 
+		snow[i]={
+			x = rnd(132), y = rnd(132)
+		}
+	end
+	--init player
+	px, py, prad = 64, 10, 2
+		-- parameters for falling normally
+	yvel = 0
+	gravity = 0.2
+	terminal_velocity = 3
+  		-- parameters for smooth parachuting
+	chute_deployed = false
+	chute_terminal_velocity = -3
+	chute_lerp_factor = 0.05-- higher values make the transition faster
+	function lerp(a, b, t)-- A simple linear interpolation function
+		return a + (b - a) * t
+	end
 end
 function _update() act_update() end
-function _draw()
-    cls()
-    act_draw()
-end
+function _draw() cls() act_draw() end
 
 -->8
 --main-menu
@@ -73,18 +90,33 @@ init_game= function ()
     act_draw = draw_game
 end
 update_game=function ()
-	if btnp(❎) then 
-        score += 1
-    end
-    if btnp(🅾️) then 
-        add_highscore(score)
-        init_menu()
-    end
+	--update snow
+	for i=1,#snow do
+        local s = snow[i]
+		s.x += (4 - i % 4)
+        s.y += sin(time() * 0.25 + i * 0.1)
+	end
+	--update player
+	if (py>140) py=10
+	if (py<-5) py=10
+	chute_deployed = false
+	if (btn(4)) chute_deployed=true
+	if not chute_deployed then
+	  yvel += gravity
+	  if (yvel > terminal_velocity) yvel = terminal_velocity
+	else
+	  yvel = lerp(yvel, chute_terminal_velocity, chute_lerp_factor)
+	end
+	py += yvel
 end
 draw_game=function ()
-	print_center("score: "..score, 64, 7)
-    print("press: ❎ to score", 0, 0, 7)
-    print("🅾️ to submit score & back", 0, 120, 10)
+	--draw snow
+	for i=1,#snow do
+        local s = snow[i]
+        circfill(0 + (s.x - 0 * 0.5) % 132 - 2, 0 + (s.y - 0 * 0.5) % 132, i % 2, col1)
+    end
+	--draw player
+	circfill(px, py, prad, col1)
 end
 
 -->8
@@ -157,6 +189,9 @@ function add_highscore(score)
 		end
 	end
 	save_highscores()
+end
+function lerp(a, b, t)-- A simple linear interpolation function
+	return a + (b - a) * t
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
