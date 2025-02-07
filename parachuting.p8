@@ -2,19 +2,45 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
-	col1,col2=15,1
-	px,py,prad=64,64,4
-end
-function _update()
 
-end
-function _draw()
+	col1, col2 = 15, 1
+	px, py, prad = 64, 10, 2
+  
+	-- parameters for falling normally
+	yvel = 0
+	gravity = 0.2
+	terminal_velocity = 3
+  -- parameters for smooth parachuting
+	chute_deployed = false
+	chute_terminal_velocity = -3
+	chute_lerp_factor = 0.05-- higher values make the transition faster
+	function lerp(a, b, t)-- A simple linear interpolation function
+		return a + (b - a) * t
+	end
+  end
+  function _update()
+	if (py>140) py=10
+	if (py<-5) py=10
+	if btn(4) then
+	  chute_deployed = true
+	else
+	  chute_deployed = false
+	end
+	if not chute_deployed then
+	  yvel += gravity
+	  if (yvel > terminal_velocity) yvel = terminal_velocity
+	else
+	  yvel = lerp(yvel, chute_terminal_velocity, chute_lerp_factor)
+	end
+	py += yvel
+  end
+  
+  function _draw()
 	cls(col2)
-	--draw player
-	circfill(px,py,prad+2,col1)
-	circfill(px,py,prad+1,col2)
-	circfill(px,py,prad,col1)
-end
+	circfill(px, py, prad, col1)
+  end
+  
+
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
