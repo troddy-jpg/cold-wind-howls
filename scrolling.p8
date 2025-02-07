@@ -4,44 +4,69 @@ __lua__
 function _init()
     col1, col2 = 15, 1
     px, py, prad = 64, 10, 2
-    yvel = 0				-- vertical movement parameters
+    yvel = 0
     gravity = 0.2
     maxvel = 3
-    chute_deployed = false  -- here false means “shorter balloon”
-    chute_maxvel = -3      
-    chute_lerp_factor = 0.05 
-    xvel = 1                -- horizontal drifting parameters
-    drift_lerp_factor = 0.1 
-    margin = 10             
-    function lerp(a, b, t) return a + (b - a) * t end
+    chute_deployed = false         
+    chute_maxvel = -3              
+    chute_lerp_factor = 0.05       
+    xvel = 1                     
+    drift_lerp_factor = 0.1      
+    margin = 10                
+    chute_target_multiplier = 30  
+    base_target_speed = 1
+    function lerp(a, b, t)
+        return a + (b - a) * t
+    end
+	lerping=false
 end
 
 function _update()
-    if (py > 128 - 2*(prad+1)) py = 128 - 2*(prad+1)
-    if (py < 2*(prad+1)) py = 2*(prad+1)
-    chute_deployed = false
-    if (btn(4)) chute_deployed = true
+    if (py > 128 - 2*(prad+1)) then
+        py = 128 - 2*(prad+1)
+    end
+    if (py < 2*(prad+1)) then
+        py = 2*(prad+1)
+    end
+    chute_deployed = (btn(4) == true)
     if not chute_deployed then
         yvel += gravity
-        if (yvel > maxvel) yvel = maxvel
+        if (yvel > maxvel) then
+            yvel = maxvel
+        end
     else
         yvel = lerp(yvel, chute_maxvel, chute_lerp_factor)
     end
     py += yvel
+    local target_speed = base_target_speed
+    if chute_deployed and lerping then
+        target_speed = base_target_speed * chute_target_multiplier
+    end
+	lerping=false
     if (px < margin) then
-        xvel = lerp(xvel, 1, drift_lerp_factor)
+		lerping=true
+        xvel = lerp(xvel, target_speed, drift_lerp_factor)
     elseif (px > 128 - margin) then
-        xvel = lerp(xvel, -1, drift_lerp_factor)
+		lerping=true
+        xvel = lerp(xvel, -target_speed, drift_lerp_factor)
     end
     px += xvel
-    if (px < 0) then px = 0 end
-    if (px > 128) then px = 128 end
+    if (px > 128 - 2*(prad+1)) then
+		xvel=0
+		yvel-=0.2
+        px = 128 - 2*(prad+1)
+    end
+    if (px < 2*(prad+1)) then
+		xvel=0
+        px = 2*(prad+1)
+    end
 end
 
 function _draw()
     cls(col2)
     circfill(px, py, prad, col1)
 end
+
 
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
