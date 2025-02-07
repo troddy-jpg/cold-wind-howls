@@ -19,6 +19,12 @@ function _init()
         return a + (b - a) * t
     end
 	lerping=false
+	speedlines={}
+	for i=1,100 do
+		speedlines[i]={
+			x=rnd(margin*2)-margin, y=rnd(128)
+		}
+	end
 end
 
 function _update()
@@ -60,11 +66,24 @@ function _update()
 		xvel=0
         px = 2*(prad+1)
     end
+	--update speedlines
+	for i=1,#speedlines do
+        local s = speedlines[i]
+		s.y -= (4 - i % 4)
+        s.x += sin(time() * 0.25 + i * 0.1)
+		if(s.y<0)s.y=126 s.x=rnd(margin)
+		if(abs(s.x)>margin) s.x=rnd(margin*2)-margin
+	end
 end
 
 function _draw()
     cls(col2)
     circfill(px, py, prad, col1)
+	for i=1,#speedlines do
+        local sl=speedlines[i]
+		if(sl.x<0) then line(128+sl.x,sl.y,128+sl.x,sl.y+2,col1)
+		else line(sl.x,sl.y,sl.x,sl.y+2,col1) end 
+	end
 end
 
 
