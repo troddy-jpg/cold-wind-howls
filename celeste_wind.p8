@@ -2,28 +2,28 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
-	col1,col2=15,1
-	snow = {}
+	col1,col2=1,0
+	rain = {}
 	for i=1,50 do 
-		snow[i]={
+		rain[i]={
 			x = rnd(132), y = rnd(132)
 		}
 	end
 end
 function _update()
-	-- Simulate wind
-	for i=1,#snow do
-        local s = snow[i]
-		s.x += (4 - i % 4)
-        s.y += sin(time() * 0.25 + i * 0.1)
+	for i=1,#rain do
+		local s = rain[i]
+		s.x += sin(time() * 0.25 + i * 0.1)
+		s.y += (i * 0.4)
+		if s.y > 128 then s.y = 4 end
 	end
 end
 function _draw()
 	cls(col2)
-	-- draw snow
-    for i=1,#snow do
-        local s = snow[i]
-        circfill(0 + (s.x - 0 * 0.5) % 132 - 2, 0 + (s.y - 0 * 0.5) % 132, i % 2, col1)
+	-- draw rain
+    for i=1,#rain do
+        local s = rain[i]
+        rectfill(s.x , s.y , s.x + 2, s.y + 2, col1)
     end
 end
 __gfx__
